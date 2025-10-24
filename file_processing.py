@@ -181,6 +181,28 @@ def process_excel_files(input_file_path):
         # Применяем новую логику округления
         calculated_series = apply_rounding_logic(komus_df_2_all, calculated_data, popularity_map)
 
+        # ----------------------------------------------------
+        # --- БЛОК ТЕСТИРОВАНИЯ: Замена '1' на '2' ---
+        # --- (УДАЛИТЬ ПОСЛЕ ОТЛАДКИ) ---
+        # ----------------------------------------------------
+        logging.info("!!! АКТИВИРОВАН ТЕСТОВЫЙ БЛОК: Замена остатков '1' на '2' для тестирования !!!")
+        try:
+            # Создаем булеву маску для всех значений, равных 1.0 (Series содержит float)
+            mask = calculated_series == 1.0
+
+            # Применяем изменение: все, что равно 1.0, становится 2.0
+            calculated_series.loc[mask] = 2.0
+
+            # Проверка, сколько значений было изменено
+            changed_count = mask.sum()
+            logging.info(f"!!! УСПЕШНО ИЗМЕНЕНО СТРОК: {changed_count} (было 1.0, стало 2.0) !!!")
+
+        except Exception as e:
+            logging.error(f"!!! НЕПРЕДВИДЕННАЯ ОШИБКА ТЕСТИРОВАНИЯ: {e} !!!")
+        # ----------------------------------------------------
+        # ----------------------------------------------------
+
+
         # 4. ЗАПИСЬ В ФАЙЛ
         with pd.ExcelWriter(FILE_OST_LESKOVSKY, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
             calculated_series.to_excel(
